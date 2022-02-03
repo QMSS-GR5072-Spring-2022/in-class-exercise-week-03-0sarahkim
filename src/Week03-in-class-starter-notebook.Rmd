@@ -1,0 +1,416 @@
+---
+title: "Week 3: the `tidyverse`"
+subtitle: |
+  | GR5072 - Modern Data Structures
+  | Spring 2022 
+output:
+  md_document:
+      variant: markdown_github
+---
+
+</br>
+
+### Instructions 
+
+This is a notebook with starter code for you to follow the examples that we'll review in class. This is a place for you to add your class notes. *REMEMBER:* `push`ing back this annotated-by-you notebook and the associated GitHub-flavored markdown file to your **GitHub Classroom** repo counts towards you class participation grade.
+
+</br>
+
+### Loading packages
+
+Let's begin by loading all the packages that we'll need today
+
+[INSERT YOUR NOTES HERE]
+
+```{r packages}
+library(tidyverse)
+library(nycflights13)
+```
+
+
+### Creating Tibbles
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+
+tibble(x = letters)
+```
+
+
+## Printing
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+tibble(x = -5:1000)
+```
+
+## Subsetting
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+df1 <- data.frame(x = 1:3, y = 3:1)
+class(df1[, 1:2])
+
+class(df1[, 1])
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+df2 <- tibble(x = 1:3, y = 3:1)
+class(df2[, 1:2])
+
+class(df2[, 1])
+```
+
+## To extract a single column use `[[` or `$`:
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+class(df2[[1]])
+
+class(df2$x)
+```
+
+## Intro to `dplyr` package 
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+## using data contained in the nycflights13 package that we loaded at the beginning of this notebook
+dim(flights)
+
+flights
+```
+
+## Single table verbs
+
+[INSERT YOUR NOTES HERE]
+
+## Filter rows with `filter()`
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+filter(flights, month == 1, day == 1)
+```
+
+## Filter rows with `filter()`
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+flights[flights$month == 1 & flights$day == 1, ]
+```
+
+
+## Arrange rows with `arrange()`
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+arrange(flights, year, month, day)
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+arrange(flights, desc(arr_delay))
+```
+
+## Select columns with `select()`
+
+[INSERT YOUR NOTES HERE]
+
+## Select columns by name
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+select(flights, year, month, day)
+```
+
+## Select all columns between year and day (inclusive)
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+select(flights, year:day)
+```
+
+## Select all columns except those from year to day (inclusive)
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+select(flights, -(year:day))
+```
+
+## Helper functions
+
+[INSERT YOUR NOTES HERE]
+
+## Use `rename()`  to change variable names
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+rename(flights, tail_num = tailnum)
+colnames(flights)
+```
+
+## Add new columns with `mutate()`
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+mutate(flights,
+  gain = arr_delay - dep_delay,
+  speed = distance / air_time * 60
+)
+```
+
+
+[INSERT YOUR NOTES HERE]
+
+
+```{r}
+starwars %>%
+  select(name:mass, gender, species) %>%
+  mutate(
+    type = case_when(
+      height > 200 | mass > 200 ~ "large",
+      species == "Droid"        ~ "robot",
+      TRUE                      ~ "other"  
+      # this "TRUE" code defines what to define everything                                              # else
+    )
+  )
+```
+
+## Summarise values with `summarise()`
+
+
+[INSERT YOUR NOTES HERE]
+
+
+```{r}
+summarise(flights,
+  delay = mean(dep_delay, na.rm = TRUE)
+)
+```
+
+## Calculate stats by variable category
+
+[INSERT YOUR NOTES HERE]
+
+## `group_by()` examples:
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+destinations <- group_by(flights, dest)
+summarise(destinations,
+  planes = n_distinct(tailnum),
+  flights = n()
+)
+```
+
+
+## Pipe Operators and the `tidyverse`
+
+[INSERT YOUR NOTES HERE]
+
+## Different ways to organize code
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+a <- filter(mtcars, carb > 1)
+b <- group_by(a, cyl)
+c <- summarise(b, Avg_mpg = mean(mpg))
+d <- arrange(c, desc(Avg_mpg))
+print(d)
+```
+
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+arrange(
+   summarize(
+       group_by(
+           filter(mtcars, carb > 1),
+           cyl
+          ),
+       Avg_mpg = mean(mpg)
+      ),
+   desc(Avg_mpg)
+ )
+```
+
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+mtcars %>%
+        filter(carb > 1) %>%
+        group_by(cyl) %>%
+        summarise(Avg_mpg = mean(mpg)) %>%
+        arrange(desc(Avg_mpg))
+```
+
+
+
+## Separating
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), sep = "/")
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+#Separate year values after second element of value
+
+table3 %>% 
+  separate(year, into = c("century", "year"), sep = 2)
+```
+
+## Uniting
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+table5[1:2,]
+
+table5 %>% 
+  unite(new, century, year, sep = "")
+```
+
+## Joining (merging) data in the Tidyverse
+
+[INSERT YOUR NOTES HERE]
+
+## Keys
+
+[INSERT YOUR NOTES HERE]
+
+
+```{r}
+planes %>% 
+  count(tailnum) %>% 
+  filter(n > 1)
+```
+
+
+## Mutating Joins
+
+[INSERT YOUR NOTES HERE] 
+
+```{r}
+flights2 <- flights %>% 
+  select(year:day, hour, origin, dest, tailnum, carrier)
+flights2
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+# the airlines dataset looks like:
+head(airlines)
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+flights2 %>%
+  select(-origin, -dest) %>% 
+  left_join(airlines, by = "carrier")
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+flights2 %>%
+  select(-origin, -dest) %>% 
+  left_join(airlines, by = "carrier")
+```
+
+## Inner Join
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     4, "y3"
+)
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+x %>% 
+  inner_join(y, by = "key")
+```
+
+## Outer joins
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+#leftjoin() with same variable name in two datasets
+flights2 %>% 
+  left_join(planes, by = "tailnum")
+```
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+#leftjoin() with diff't variable name in two datasets
+flights2 %>% 
+  left_join(airports, c("dest" = "faa"))
+```
+
+
+## Gathering
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+table4a
+```
+
+[INSERT YOUR NOTES HERE]
+
+
+```{r}
+# Note that columns are numeric, so we use backticks
+# More typically we can just refer to column names.
+table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+
+## Spreading
+
+[INSERT YOUR NOTES HERE]
+
+```{r}
+table2 %>%
+    spread(key = type, value = count)
+```
